@@ -294,21 +294,21 @@
   <p style="font-size:0.75rem; color: var(--muted); margin-top: 0.2rem;">Rate-limited at 3 requests/hour, 10 requests/day.</p>
 </header>
 
-
 <div class="card">
 
   <!-- LEFT -->
   <div class="panel-left">
     <div class="panel-label">What happened</div>
     <div class="inner">
-      <textarea id="input" placeholder="I chased a squirrel." maxlength="500"></textarea>
+      <textarea id="input" placeholder="I chased a squirrel." maxlength="150"></textarea>
+      <p style="font-size: 0.72rem; color: var(--muted);" id="char-count">0 / 150</p>
 
       <div class="chips">
         <span class="chip" onclick="setInput('I chased a squirrel.')">Chased a squirrel</span>
         <span class="chip" onclick="setInput('I made a sandwich.')">Made a sandwich</span>
         <span class="chip" onclick="setInput('I took a nap.')">Took a nap</span>
         <span class="chip" onclick="setInput('I fixed a typo in the code.')">Fixed a typo</span>
-        <span class="chip" onclick="setInput('I attended another Zoom call.')">Survived a 3-hour Zoom call</span>
+        <span class="chip" onclick="setInput('I attended another Zoom call.')">Survived a Zoom call</span>
       </div>
 
       <button class="btn-inflate" id="btn" onclick="inflate()">Inflate</button>
@@ -389,10 +389,16 @@
     });
   }
 
+  const MAX_CHARS = 150;
+
   async function inflate() {
     const input = document.getElementById("input").value.trim();
     if (!input) {
       showError("Tell me what you actually did first.");
+      return;
+    }
+    if (input.length > MAX_CHARS) {
+      showError(`Keep it under ${MAX_CHARS} characters.`);
       return;
     }
 
@@ -446,7 +452,16 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("input").addEventListener("keydown", (e) => {
+    const textarea = document.getElementById("input");
+    const counter  = document.getElementById("char-count");
+
+    textarea.addEventListener("input", () => {
+      const len = textarea.value.length;
+      counter.textContent = `${len} / ${MAX_CHARS}`;
+      counter.style.color = len > MAX_CHARS ? "var(--red)" : "var(--muted)";
+    });
+
+    textarea.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) inflate();
     });
   });
